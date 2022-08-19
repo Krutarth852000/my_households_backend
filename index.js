@@ -24,6 +24,7 @@ app.use('/api/expense', expense);
 
 
 mongoose.connect("mongodb+srv://Krutarth852000:Krutarth852000@cluster0.5kehpzq.mongodb.net/?retryWrites=true&w=majority");
-app.listen(3001, ()=>{
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
     console.log("running on port 3001")
 })
