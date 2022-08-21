@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
         await user.save();
         const token = jwt.sign({ _id: user.id,FirstName: user.FirstName, LastName: user.LastName, email:user.email  }, config.get('jwtPrivateKey'));
         
-        return res.json({ status: "ok", user:token, header:"x-auth-token" })
+        return res.json({ status: "ok", user:token, header:"access-control-expose-headers" })
         // res.header("x-auth-token", token).send(user);
     }
 })
@@ -36,11 +36,12 @@ router.get('/', async (req, res) => {
     const user = await User.find();
     res.send(user);
 })
-router.get('/paid/:id', async (req, res) => {
-  const paidById = req.params.id;
-  const user = await User.finf({ _id: paidById })
-  res.send(user);
-})
+// router.get('/paid/:id', async (req, res) => {
+//   const paidById = req.params.id;
+//   const user = await User.finf({ _id: paidById })
+//   res.send(user)
+
+// })
 router.get("/:email", async (req, res) => {
     console.log('Called',req.params.email)
     const user = await User.findOne({ email: req.params.email });
