@@ -13,13 +13,22 @@ if (!config.get("jwtPrivateKey")) {
     console.log("FATAL ERROR: jwtPrivateKey not defined.");
     process.exit(1);
 }
-// app.use(cors('*'));
-   const corsOptions = {
-      origin: '*',
-      credentials: true,
-      optionSuccessStatus: 200
-    }
-app.use(cors(corsOptions));
+const corsOpts = {
+  origin: '*',
+
+  methods: [
+      'GET',
+      'PUT',
+      'DELETE',
+      'POST'
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+  ],
+};
+
+app.use(cors(corsOpts));
 app.get("/", (req, res)=>{res.send("hi")});
 app.use(express.json());
 app.use('/api/auth', auth);
