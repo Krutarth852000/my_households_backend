@@ -3,6 +3,8 @@ const express = require("express");
 const router = express.Router();
 const { newGroup } = require("../models/groupModal");
 const { User } = require("../models/userModel");
+const { shopList } = require("../models/shopList");
+const { expense } = require("../models/expenseModal");
 
 router.post("/", async (req, res) => {
   const group = new newGroup({
@@ -13,28 +15,27 @@ router.post("/", async (req, res) => {
 
   res.send(group._id);
 });
-router.get('/',async (req, res) => {
-    const group = await newGroup.find().select('_id');
-    res.send(group);
-})
-router.get('/detail/:groupId',async (req, res) => {
-    const group = await newGroup.findById(req.params.groupId);
-    res.send(group);
-})
-router.get('/:userId', async (req, res) => { 
-    let groups = await newGroup.find({ "MemberList.id": req.params.userId });
-     groups = await Promise.all(groups);
-    res.send(groups);
-})
-router.post('/:groupId/member/:memberId', async (req, res) => {
+router.get("/", async (req, res) => {
+  const group = await newGroup.find().select("_id");
+  res.send(group);
+});
+router.get("/detail/:groupId", async (req, res) => {
+  const group = await newGroup.findById(req.params.groupId);
+  res.send(group);
+});
+router.get("/:userId", async (req, res) => {
+  let groups = await newGroup.find({ "MemberList.id": req.params.userId });
+  groups = await Promise.all(groups);
+  res.send(groups);
+});
+router.post("/:groupId/member/:memberId", async (req, res) => {
   const idGroup = req.params.groupId;
   const idMember = req.params.memberId;
   if (!mongoose.Types.ObjectId.isValid(idMember)) {
-        res.status(404).send("invalid id");
+    res.status(404).send("invalid id");
   }
-   if (!mongoose.Types.ObjectId.isValid(idGroup)) {
-        res.status(404).send("invalid id group");
-
+  if (!mongoose.Types.ObjectId.isValid(idGroup)) {
+    res.status(404).send("invalid id group");
   }
   const group = await newGroup.findById(idGroup);
   if (!group) {
@@ -47,36 +48,66 @@ router.post('/:groupId/member/:memberId', async (req, res) => {
   const obj = {
     FirstName: member.FirstName,
     id: member._id,
-    email: member.email
-  }
+    email: member.email,
+  };
   group.MemberList.push(obj);
   await group.save();
   res.send(group);
-})
-
-  router.delete('/:groupId/member/:memberId', async (req, res) => {
+});
+// delete group
+router.delete("/:groupId", async (req, res) => {
+  console.log(req.params.groupId);
+  const groupId = req.params.groupId;
+  if (!mongoose.Types.ObjectId.isValid(groupId)) {
+    res.status(404).send("invalid id group");
+  }
+  const group = await newGroup.findById(groupId);
+  if (!group) {
+    res.status(404).send("group not found");
+  }
+  const list = await shopList.deleteMany({
+    groupId: new mongoose.Types.ObjectId(group._id),
+  });
+  const expenses = await expense.deleteMany({
+    groupId: new mongoose.Types.ObjectId(group._id),
+  });
+  const result = await newGroup.deleteOne({ _id: groupId });
+  if (result) {
+    
+    res.send('group Deleted');
+  }
+  res.send('error');
+});
+// delete member
+router.delete("/:groupId/member/:memberId", async (req, res) => {
   const idGroup = req.params.groupId;
   const idMember = req.params.memberId;
   if (!mongoose.Types.ObjectId.isValid(idMember)) {
-        res.status(404).send("invalid id");
+    res.status(404).send("invalid id");
   }
-   if (!mongoose.Types.ObjectId.isValid(idGroup)) {
-        res.status(404).send("invalid id group");
-
+  if (!mongoose.Types.ObjectId.isValid(idGroup)) {
+    res.status(404).send("invalid id group");
   }
   const group = await newGroup.findById(idGroup);
   if (!group) {
     res.status(404).send("Group not found");
   }
 
-  const index = group.MemberList.findIndex(list => list.id.toString() === idMember);
-console.log(index, idMember, group.MemberList);
- if (index > -1) {
-      group.MemberList.splice(index, 1);
-      await group.save();
-    }
+  const index = group.MemberList.findIndex(
+    (list) => list.id.toString() === idMember
+  );
+  console.log(index, idMember, group.MemberList);
+  if (index > -1) {
+    group.MemberList.splice(index, 1);
+    await group.save();
+  }
+  if (group.MemberList.length > 0) {
     res.send(group);
-})
+  } else {
+    const result = await newGroup.deleteOne({ _id: idGroup });
+    res.send("group Deleted");
+  }
+});
 //     const user = await User.findById(req.params.userId);
 //     res.send(user);
 //     const group = await Group.find()
@@ -116,7 +147,5 @@ console.log(index, idMember, group.MemberList);
 //   await group.save();
 //   res.send(group);
 // });
-
-
 
 module.exports = router;
