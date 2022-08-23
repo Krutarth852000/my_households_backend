@@ -70,24 +70,5 @@ router.get("/:email", async (req, res) => {
   });
 });
 
-// router.put("/:userId/:groupId", async (req, res) => {
-//   console.log("called", req.params.groupId);
-//   console.log("user Called", req.params.userId);
-//   const user = await User.findByIdAndUpdate(req.params.userId);
-//   if (!user) return res.status(404).send("User not found.");
-//   // await user.save();
-//   user.groups = [...user.groups, req.params.groupId];
-//   res.send(user);
-
-// })
-// const validateUser = (user) => {
-//   const schema = {
-//     name: Joi.string().min(1).max(50).required(),
-//     email: Joi.string().min(5).max(255).required().email(),
-//     password: Joi.string().min(5).max(1024).required(),
-//   };
-//   return Joi.object(schema).validate(user);
-// };
-
 module.exports = router;
 // export { validateUser as validate };

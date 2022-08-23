@@ -32,18 +32,18 @@ router.post("/:groupId/member/:memberId", async (req, res) => {
   const idGroup = req.params.groupId;
   const idMember = req.params.memberId;
   if (!mongoose.Types.ObjectId.isValid(idMember)) {
-    res.status(404).send("invalid id");
+    return res.status(404).send("invalid id");
   }
   if (!mongoose.Types.ObjectId.isValid(idGroup)) {
-    res.status(404).send("invalid id group");
+    return res.status(404).send("invalid id group");
   }
   const group = await newGroup.findById(idGroup);
   if (!group) {
-    res.status(404).send("Group not found");
+    return res.status(404).send("Group not found");
   }
   const member = await User.findById(idMember);
   if (!member) {
-    res.status(404).send("Member not found");
+    return res.status(404).send("Member not found");
   }
   const obj = {
     FirstName: member.FirstName,
@@ -59,11 +59,11 @@ router.delete("/:groupId", async (req, res) => {
   console.log(req.params.groupId);
   const groupId = req.params.groupId;
   if (!mongoose.Types.ObjectId.isValid(groupId)) {
-    res.status(404).send("invalid id group");
+    return res.status(404).send("invalid id group");
   }
   const group = await newGroup.findById(groupId);
   if (!group) {
-    res.status(404).send("group not found");
+    return res.status(404).send("group not found");
   }
   const list = await shopList.deleteMany({
     groupId: new mongoose.Types.ObjectId(group._id),
@@ -73,24 +73,23 @@ router.delete("/:groupId", async (req, res) => {
   });
   const result = await newGroup.deleteOne({ _id: groupId });
   if (result) {
-    
-    res.send('group Deleted');
+    return res.send("group Deleted");
   }
-  res.send('error');
+  return res.send("error");
 });
 // delete member
 router.delete("/:groupId/member/:memberId", async (req, res) => {
   const idGroup = req.params.groupId;
   const idMember = req.params.memberId;
   if (!mongoose.Types.ObjectId.isValid(idMember)) {
-    res.status(404).send("invalid id");
+    return res.status(404).send("invalid id");
   }
   if (!mongoose.Types.ObjectId.isValid(idGroup)) {
-    res.status(404).send("invalid id group");
+    return res.status(404).send("invalid id group");
   }
   const group = await newGroup.findById(idGroup);
   if (!group) {
-    res.status(404).send("Group not found");
+    return res.status(404).send("Group not found");
   }
 
   const index = group.MemberList.findIndex(
@@ -102,50 +101,11 @@ router.delete("/:groupId/member/:memberId", async (req, res) => {
     await group.save();
   }
   if (group.MemberList.length > 0) {
-    res.send(group);
+    return res.send(group);
   } else {
     const result = await newGroup.deleteOne({ _id: idGroup });
-    res.send("group Deleted");
+    return res.send("group Deleted");
   }
 });
-//     const user = await User.findById(req.params.userId);
-//     res.send(user);
-//     const group = await Group.find()
-
-//    const group = await newGroup.find().select('_id');
-//     res.send(group);
-// })
-// router.post("/:groupId/member/:memberId", async (req, res) => {
-//   const groupId = req.params.groupId;
-//   const memberId = req.params.memberId;
-//   const group = await newGroup.findById(groupId);
-//   if (!group) {
-//     res.status(404).send("Group not found");
-//   }
-//   const member = await User.findById(memberId);
-//   if (!member) {
-//     res.status(404).send("Member not found");
-//   }
-//   group.MemberList.push(memberId);
-
-// //   const expenses = await Expense.find({ group: groupId });
-
-// //   const updatedMemberBalances = await updateMemberBalances(
-// //     expenses,
-// //     group.members
-// //   );
-
-// //   await Promise.all(
-// //     updatedMemberBalances.map(async (memberBalances) => {
-// //       await Expense.updateOne(
-// //         { _id: memberBalances.expenseId },
-// //         { $set: { membersBalance: memberBalances.membersBalance } }
-// //       );
-// //     })
-// //   );
-
-//   await group.save();
-//   res.send(group);
-// });
 
 module.exports = router;
