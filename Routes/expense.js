@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(groupId)) {
     return res.status(404).send("invalid id");
   }
-  const members = await newGroup.findById(groupId).select("MemberList");
+  const members = await newGroup.findById(groupId);
   // console.log(members.MemberList);
   const membersList = members.MemberList;
   const length = membersList.length;
@@ -47,8 +47,9 @@ router.get("/:groupId", async (req, res) => {
     .populate("paidBy", "FirstName");
   console.log(expenses);
   if (expenses) {
+    return res.send(expenses);
   }
-  res.send(expenses);
+  return res.send('no expense added yet')
 });
 
 module.exports = router;
