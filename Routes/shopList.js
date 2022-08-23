@@ -42,7 +42,7 @@ router.delete("/:itemId/:listId", async (req, res) => {
     const itemId = req.params.itemId;
     const listId = req.params.listId;
     console.log(itemId, listId);
-    const data = await shopList.findById(itemId).select('list');
+    const data = await shopList.findById(itemId);
         const index = data.list.findIndex(list => list._id.toString() === listId)
         // console.log(index);
         if (index > -1) {
